@@ -45,14 +45,20 @@ def _make_icon(color: str) -> QIcon:
     return QIcon(px)
 
 
-_ICON_ACTIVE  = _make_icon("#1565C0")  # blue  – modules running
-_ICON_IDLE    = _make_icon("#616161")  # grey  – no modules active
-_ICON_PAUSED  = _make_icon("#C62828")  # red   – paused / emergency stop
-
-
 class TrayIcon(QSystemTrayIcon):
+    # Icons are created lazily inside __init__ so QApplication already exists.
+    _icon_active: QIcon | None = None
+    _icon_idle:   QIcon | None = None
+    _icon_paused: QIcon | None = None
+
     def __init__(self, app: "AccessMateApp") -> None:
-        icon = QIcon(str(ICON_PATH)) if ICON_PATH.exists() else _ICON_IDLE
+        # Build icons now – QApplication is guaranteed to exist at this point.
+        if TrayIcon._icon_active is None:
+            TrayIcon._icon_active = _make_icon("#1565C0")  # blue
+            TrayIcon._icon_idle   = _make_icon("#616161")  # grey
+            TrayIcon._icon_paused = _make_icon("#C62828")  # red
+
+        icon = QIcon(str(ICON_PATH)) if ICON_PATH.exists() else TrayIcon._icon_idle
         super().__init__(icon)
         self._app = app
         self.setToolTip(tr("app.name"))
@@ -72,7 +78,7 @@ class TrayIcon(QSystemTrayIcon):
 
     def _set_paused(self, paused: bool) -> None:
         if paused:
-            self.setIcon(_ICON_PAUSED)
+            self.setIcon(TrayIcon._icon_paused)
             self.setToolTip(f"{tr('app.name')} – {tr('app.pause_all')}")
         else:
             self._update_icon()
@@ -84,7 +90,7 @@ class TrayIcon(QSystemTrayIcon):
             self.setIcon(QIcon(str(ICON_PATH)))
             return
         any_active = any(m.enabled for m in self._app.get_modules())
-        self.setIcon(_ICON_ACTIVE if any_active else _ICON_IDLE)
+        self.setIcon(TrayIcon._icon_active if any_active else TrayIcon._icon_idle)
 
     def _refresh(self) -> None:
         self._update_icon()
