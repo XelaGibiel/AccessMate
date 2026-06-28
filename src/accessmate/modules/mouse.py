@@ -16,17 +16,21 @@ import threading
 import time
 from typing import Any
 
-from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QWidget
 
 from accessmate.core.action_manager import Action, action_manager
 from accessmate.core.event_bus import bus
+from accessmate.core.i18n import tr
 from accessmate.modules.base import BaseModule
 
 
 class MouseModule(BaseModule):
     MODULE_ID = "mouse"
-    DISPLAY_NAME = "Maus"
     DESCRIPTION = "Maussteuerung und Cursor-Assistenz"
+
+    @property
+    def DISPLAY_NAME(self) -> str:  # type: ignore[override]
+        return tr("module.mouse.name")
 
     def __init__(self) -> None:
         super().__init__()
@@ -63,10 +67,8 @@ class MouseModule(BaseModule):
         bus.publish("module.stopped", module_id=self.MODULE_ID)
 
     def get_settings_widget(self) -> QWidget:
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        layout.addWidget(QLabel("Maus-Einstellungen (wird ausgebaut)"))
-        return widget
+        from accessmate.gui.settings.mouse_settings import MouseSettingsWidget
+        return MouseSettingsWidget(self._settings)
 
     def load_settings(self, settings: dict[str, Any]) -> None:
         self._settings = settings

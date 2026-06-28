@@ -22,6 +22,7 @@ from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 
 from accessmate.core.action_manager import Action, action_manager
 from accessmate.core.event_bus import bus
+from accessmate.core.i18n import tr
 from accessmate.modules.base import BaseModule
 
 try:
@@ -46,8 +47,11 @@ class Macro:
 
 class MacrosModule(BaseModule):
     MODULE_ID = "macros"
-    DISPLAY_NAME = "Makros"
     DESCRIPTION = "Tastenkürzel für Textbausteine, Programme und Aktionen"
+
+    @property
+    def DISPLAY_NAME(self) -> str:  # type: ignore[override]
+        return tr("module.macros.name")
 
     def __init__(self) -> None:
         super().__init__()

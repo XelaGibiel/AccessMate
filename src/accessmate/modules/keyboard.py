@@ -16,6 +16,7 @@ from typing import Any
 from PySide6.QtWidgets import QLabel, QWidget, QVBoxLayout
 
 from accessmate.core.event_bus import bus
+from accessmate.core.i18n import tr
 from accessmate.modules.base import BaseModule
 
 try:
@@ -35,8 +36,11 @@ MODIFIER_KEYS = {
 
 class KeyboardModule(BaseModule):
     MODULE_ID = "keyboard"
-    DISPLAY_NAME = "Tastatur"
     DESCRIPTION = "Tastatureingabe-Assistenz und Sticky Keys"
+
+    @property
+    def DISPLAY_NAME(self) -> str:  # type: ignore[override]
+        return tr("module.keyboard.name")
 
     def __init__(self) -> None:
         super().__init__()
