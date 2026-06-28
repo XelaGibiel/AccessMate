@@ -36,3 +36,4 @@ Chatverl*/
 # Local virtual environment and dev scripts
 .venv/
 check.ps1
+AccessMate.bat
