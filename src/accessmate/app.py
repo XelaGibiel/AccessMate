@@ -29,6 +29,7 @@ class AccessMateApp:
         self._active_profile: str = self._app_config.get("active_profile", "default")
         self._profile_data: dict[str, Any] = {}
         self._paused = False
+        self._pre_pause_state: dict[str, bool] = {}
         self._settings_window = None
 
         self._modules: list[BaseModule] = [
@@ -62,6 +63,8 @@ class AccessMateApp:
         return self._modules
 
     def pause_all(self) -> None:
+        # Remember which modules were active before pausing
+        self._pre_pause_state = {m.MODULE_ID: m.enabled for m in self._modules}
         self._paused = True
         for module in self._modules:
             if module.enabled:
@@ -70,7 +73,11 @@ class AccessMateApp:
 
     def resume_all(self) -> None:
         self._paused = False
-        self._load_profile(self._active_profile)
+        # Restore exactly the modules that were active before pausing
+        for module in self._modules:
+            if self._pre_pause_state.get(module.MODULE_ID, False):
+                module.enable()
+        self._pre_pause_state = {}
         bus.publish("app.resumed")
 
     def emergency_stop(self) -> None:
