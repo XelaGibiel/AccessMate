@@ -31,4 +31,8 @@ Thumbs.db
 %APPDATA%/AccessMate/
 
 # Local chat logs / planning notes
-Chatverläufe/
+Chatverl*/
+
+# Local virtual environment and dev scripts
+.venv/
+check.ps1
